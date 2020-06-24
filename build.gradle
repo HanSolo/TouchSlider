@@ -19,7 +19,6 @@ buildscript {
 plugins {
     id 'idea'
     id 'java-library'
-    id 'application'
     id 'com.google.osdetector' version '1.6.2'
     id 'org.javamodularity.moduleplugin' version '1.6.0'
     id 'org.beryx.jlink' version '2.17.2'
