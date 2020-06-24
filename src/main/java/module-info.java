@@ -1,4 +1,4 @@
-module touchslider {
+module eu.hansolo.fx.touchslider {
 
     // Java
     requires java.base;
