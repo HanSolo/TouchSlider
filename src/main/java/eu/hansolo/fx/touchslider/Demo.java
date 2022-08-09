@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 by Gerrit Grunwald
+ * Copyright (c) 2022 by Gerrit Grunwald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ public class Demo extends Application {
     private CheckBox    showZeroCheckBox;
     private CheckBox    startFromZeroCheckBox;
     private CheckBox    snapToZeroCheckBox;
+    private CheckBox    returnToZeroCheckBox;
     private VBox        buttonBox;
 
 
@@ -58,23 +59,23 @@ public class Demo extends Application {
                                          .onTouchSliderEvent(e -> System.out.println("Volume: " + e.getValue()))
                                          .build();
         bassSlider = TouchSliderBuilder.create()
-                                         .prefSize(200, 600)
-                                         .name("Bass")
-                                         .orientation(Orientation.VERTICAL)
-                                         .minValue(-50)
-                                         .range(100)
-                                         .formatString("%.0f")
-                                         .barBackgroundColor(Color.rgb(50, 50, 150, 0.5))
-                                         .barColor(Color.rgb(50, 50, 150))
-                                         .thumbColor(Color.rgb(0, 0, 100))
-                                         .valueTextColor(Color.WHITE)
-                                         .nameTextColor(Color.WHITE)
-                                         .zeroColor(Color.WHITE)
-                                         .showZero(true)
-                                         .valueVisible(true)
-                                         .nameVisible(true)
-                                         .onTouchSliderEvent(e -> System.out.println("Bass: " + e.getValue()))
-                                         .build();
+                                       .prefSize(200, 600)
+                                       .name("Bass")
+                                       .orientation(Orientation.VERTICAL)
+                                       .minValue(-50)
+                                       .range(100)
+                                       .formatString("%.0f")
+                                       .barBackgroundColor(Color.rgb(50, 50, 150, 0.5))
+                                       .barColor(Color.rgb(50, 50, 150))
+                                       .thumbColor(Color.rgb(0, 0, 100))
+                                       .valueTextColor(Color.WHITE)
+                                       .nameTextColor(Color.WHITE)
+                                       .zeroColor(Color.WHITE)
+                                       .showZero(true)
+                                       .valueVisible(true)
+                                       .nameVisible(true)
+                                       .onTouchSliderEvent(e -> System.out.println("Bass: " + e.getValue()))
+                                       .build();
         trebleSlider = TouchSliderBuilder.create()
                                          .prefSize(200, 600)
                                          .minValue(-100)
@@ -107,7 +108,11 @@ public class Demo extends Application {
         snapToZeroCheckBox.setSelected(true);
         snapToZeroCheckBox.selectedProperty().addListener((o, ov, nv) -> trebleSlider.setSnapToZero(nv));
 
-        buttonBox = new VBox(5, valueVisibleCheckBox, nameVisibleCheckBox, barBackgroundFilledCheckBox, showZeroCheckBox, startFromZeroCheckBox, snapToZeroCheckBox);
+        returnToZeroCheckBox = new CheckBox("Return to zero");
+        returnToZeroCheckBox.setSelected(false);
+        returnToZeroCheckBox.selectedProperty().addListener((o, ov, nv) -> trebleSlider.setReturnToZero(nv));
+
+        buttonBox = new VBox(5, valueVisibleCheckBox, nameVisibleCheckBox, barBackgroundFilledCheckBox, showZeroCheckBox, startFromZeroCheckBox, snapToZeroCheckBox, returnToZeroCheckBox);
     }
 
     @Override public void start(Stage stage) {

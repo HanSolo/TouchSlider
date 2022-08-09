@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 by Gerrit Grunwald
+ * Copyright (c) 2022 by Gerrit Grunwald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package eu.hansolo.fx.touchslider;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.beans.DefaultProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.DoublePropertyBase;
 import javafx.beans.value.ObservableValue;
@@ -41,8 +43,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Screen;
-import javafx.stage.Window;
 
 import java.util.List;
 import java.util.Locale;
@@ -95,6 +95,7 @@ public class TouchSlider extends Region {
     private              DoubleProperty                            value;
     private              DoubleProperty                            minValue;
     private              DoubleProperty                            range;
+    private              BooleanProperty                           returnToZero;
     private              StyleableStringProperty                   formatString;
     private              Canvas                                    canvas;
     private              GraphicsContext                           ctx;
@@ -128,6 +129,19 @@ public class TouchSlider extends Region {
             }
             @Override public Object getBean() { return TouchSlider.this; }
             @Override public String getName() { return "range"; }
+        };
+        returnToZero         = new BooleanPropertyBase(false) {
+            @Override protected void invalidated() {
+                if (get()) {
+                    double value     = getMinValue() + (TouchSlider.this.getRange() * TouchSlider.this.getValue());
+                    double snapRange = getRange();
+                    if (value > -snapRange && value < snapRange) {
+                        TouchSlider.this.setValue((Math.abs(getMinValue()) / getRange()));
+                    }
+                }
+            }
+            @Override public Object getBean() { return TouchSlider.this; }
+            @Override public String getName() { return "returnToZero"; }
         };
         barBackgroundColor   = new StyleableObjectProperty<>(Color.color(Color.BLUE.getRed(), Color.BLUE.getGreen(), Color.BLUE.getBlue(), 0.3)) {
             @Override protected void invalidated() { redraw(); }
@@ -235,7 +249,13 @@ public class TouchSlider extends Region {
                     setValue(clamp(0.0, 1.0, 1.0 - y / height));
                 }
             } else if (MouseEvent.MOUSE_RELEASED.equals(type)) {
-                if (getSnapToZero() && isZeroInRange) {
+                if (getReturnToZero() && isZeroInRange) {
+                    double value = getMinValue() + (getRange() * getValue());
+                    double snapRange = getRange();
+                    if (value > -snapRange && value < snapRange) {
+                        setValue((Math.abs(getMinValue()) / getRange()));
+                    }
+                } else if (getSnapToZero() && isZeroInRange) {
                     double value     = getMinValue() + (getRange() * getValue());
                     double snapRange = getRange() * 0.015;
                     if (value > -snapRange && value < snapRange) {
@@ -256,7 +276,13 @@ public class TouchSlider extends Region {
                     setValue(clamp(0.0, 1.0, 1.0 - y / height));
                 }
             } else if (TouchEvent.TOUCH_RELEASED.equals(type)) {
-                if (getSnapToZero() && isZeroInRange) {
+                if (getReturnToZero() && isZeroInRange) {
+                    double value = getMinValue() + (getRange() * getValue());
+                    double snapRange = getRange();
+                    if (value > -snapRange && value < snapRange) {
+                        setValue((Math.abs(getMinValue()) / getRange()));
+                    }
+                } else if (getSnapToZero() && isZeroInRange) {
                     double value     = getMinValue() + (getRange() * getValue());
                     double snapRange = getRange() * 0.015;
                     if (value > -snapRange && value < snapRange) {
@@ -312,37 +338,101 @@ public class TouchSlider extends Region {
     @Override protected double computeMaxWidth(final double HEIGHT) { return MAXIMUM_WIDTH; }
     @Override protected double computeMaxHeight(final double WIDTH) { return MAXIMUM_HEIGHT; }
 
+    /**
+     * Returns the orientation of the slider
+     * @return the orientation of the slider
+     */
     public Orientation getOrientation() { return orientation.getValue(); }
+    /**
+     * Sets the orientation of the slider
+     * @param orientation
+     */
     public void setOrientation(final Orientation orientation) { this.orientation.setValue(orientation); }
     public StyleableObjectProperty<Orientation> orientationProperty() { return orientation; }
 
+    /**
+     * Returns the minimum value of the slider
+     * @return the minimum value of the slider
+     */
     public double getMinValue() { return minValue.getValue().doubleValue(); }
+    /**
+     * Defines the minimum value of the slider
+     * @param minValue
+     */
     public void setMinValue(final double minValue) { this.minValue.setValue(minValue); }
     public ObservableValue minValueProperty() { return minValue; }
 
+    /**
+     * Returns the range of the slider
+     * @return the range of the slider
+     */
     public double getRange() { return range.getValue().doubleValue(); }
+    /**
+     * Sets the range of the slider
+     * @param range
+     */
     public void setRange(final double range) { this.range.setValue(range); }
     public DoubleProperty rangeProperty() { return range; }
 
+    public boolean getReturnToZero() { return returnToZero.get(); }
+    public void setReturnToZero(final boolean returnToZero) { this.returnToZero.set(returnToZero); }
+    public BooleanProperty returnToZeroProperty() { return returnToZero; }
+
+    /**
+     * Returns the current value of the slider
+     * @return the current value of the slider
+     */
     public double getSliderValue() { return (getMinValue() + getRange() * getValue()); }
     public void setSliderValue(final double value) {
         double realValue = clamp(getMinValue(), getMinValue() + getRange(), value);
         setValue((realValue - getMinValue()) / getRange());
     }
 
+    /**
+     * Returns the background color of the slider
+     * @return the background color of the slider
+     */
     public Color getBarBackgroundColor() { return barBackgroundColor.getValue(); }
+    /**
+     * Sets the background color of the slider
+     * @param color
+     */
     public void setBarBackgroundColor(final Color color) { barBackgroundColor.setValue(color); }
     public StyleableObjectProperty<Color> barBackgroundColorProperty() { return barBackgroundColor; }
 
+    /**
+     * Returns the bar color of the slider
+     * @return the bar color of the slider
+     */
     public Color getBarColor() { return barColor.getValue(); }
+    /**
+     * Sets the bar color of the slider
+     * @param color
+     */
     public void setBarColor(final Color color) { barColor.setValue(color); }
     public StyleableObjectProperty<Color> barColorProperty() { return barColor; }
 
+    /**
+     * Returns the thumb color of the slider
+     * @return the thumb color of the slider
+     */
     public Color getThumbColor() { return thumbColor.getValue(); }
+    /**
+     * Sets the thumb color of the slider
+     * @param color
+     */
     public void setThumbColor(final Color color) { thumbColor.setValue(color); }
     public StyleableObjectProperty<Color> thumbColorProperty() { return thumbColor; }
 
+    /**
+     * Returns the color of the text that shows the value
+     * @return the color of the text that shows the value
+     */
     public Color getValueTextColor() { return valueTextColor.getValue(); }
+    /**
+     * Sets the color of the text that shows the value
+     * @param color
+     */
     public void setValueTextColor(final Color color) { valueTextColor.setValue(color); }
     public StyleableObjectProperty<Color> valueTextColorProperty() { return valueTextColor; }
 

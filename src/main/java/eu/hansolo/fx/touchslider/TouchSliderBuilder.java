@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 by Gerrit Grunwald
+ * Copyright (c) 2022 by Gerrit Grunwald
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,6 +136,11 @@ public class TouchSliderBuilder<B extends TouchSliderBuilder<B>> {
         return (B)this;
     }
 
+    public final B returnToZero(final boolean returnToZero) {
+        properties.put("returnToZero", new SimpleBooleanProperty(returnToZero));
+        return (B)this;
+    }
+
     public final B onTouchSliderEvent(final TouchSliderObserver observer) {
         properties.put("observer", new SimpleObjectProperty<>(observer));
         return (B)this;
@@ -221,77 +226,51 @@ public class TouchSliderBuilder<B extends TouchSliderBuilder<B>> {
     public final TouchSlider build() {
         final TouchSlider touchSlider = new TouchSlider();
         for (String key : properties.keySet()) {
-            if ("prefSize".equals(key)) {
-                Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
-                touchSlider.setPrefSize(dim.getWidth(), dim.getHeight());
-            } else if("minSize".equals(key)) {
-                Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
-                touchSlider.setMinSize(dim.getWidth(), dim.getHeight());
-            } else if("maxSize".equals(key)) {
-                Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
-                touchSlider.setMaxSize(dim.getWidth(), dim.getHeight());
-            } else if("prefWidth".equals(key)) {
-                touchSlider.setPrefWidth(((DoubleProperty) properties.get(key)).get());
-            } else if("prefHeight".equals(key)) {
-                touchSlider.setPrefHeight(((DoubleProperty) properties.get(key)).get());
-            } else if("minWidth".equals(key)) {
-                touchSlider.setMinWidth(((DoubleProperty) properties.get(key)).get());
-            } else if("minHeight".equals(key)) {
-                touchSlider.setMinHeight(((DoubleProperty) properties.get(key)).get());
-            } else if("maxWidth".equals(key)) {
-                touchSlider.setMaxWidth(((DoubleProperty) properties.get(key)).get());
-            } else if("maxHeight".equals(key)) {
-                touchSlider.setMaxHeight(((DoubleProperty) properties.get(key)).get());
-            } else if("scaleX".equals(key)) {
-                touchSlider.setScaleX(((DoubleProperty) properties.get(key)).get());
-            } else if("scaleY".equals(key)) {
-                touchSlider.setScaleY(((DoubleProperty) properties.get(key)).get());
-            } else if ("layoutX".equals(key)) {
-                touchSlider.setLayoutX(((DoubleProperty) properties.get(key)).get());
-            } else if ("layoutY".equals(key)) {
-                touchSlider.setLayoutY(((DoubleProperty) properties.get(key)).get());
-            } else if ("translateX".equals(key)) {
-                touchSlider.setTranslateX(((DoubleProperty) properties.get(key)).get());
-            } else if ("translateY".equals(key)) {
-                touchSlider.setTranslateY(((DoubleProperty) properties.get(key)).get());
-            } else if ("padding".equals(key)) {
-                touchSlider.setPadding(((ObjectProperty<Insets>) properties.get(key)).get());
-            } else if ("name".equals(key)) {
-                touchSlider.setName(((StringProperty) properties.get(key)).get());
-            } else if ("orientation".equals(key)) {
-                touchSlider.setOrientation(((ObjectProperty<Orientation>) properties.get(key)).get());
-            } else if("minValue".equals(key)) {
-                touchSlider.setMinValue(((DoubleProperty) properties.get(key)).get());
-            } else if("range".equals(key)) {
-                touchSlider.setRange(((DoubleProperty) properties.get(key)).get());
-            } else if("barBackgroundColor".equals(key)) {
-                touchSlider.setBarBackgroundColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("barColor".equals(key)) {
-                touchSlider.setBarColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("thumbColor".equals(key)) {
-                touchSlider.setThumbColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("valueTextColor".equals(key)) {
-                touchSlider.setValueTextColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("nameTextColor".equals(key)) {
-                touchSlider.setNameTextColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("zeroColor".equals(key)) {
-                touchSlider.setZeroColor(((ObjectProperty<Color>) properties.get(key)).get());
-            } else if("formatString".equals(key)) {
-                touchSlider.setFormatString(((StringProperty) properties.get(key)).get());
-            } else if("valueVisible".equals(key)) {
-                touchSlider.setValueVisible(((BooleanProperty) properties.get(key)).get());
-            } else if("nameVisible".equals(key)) {
-                touchSlider.setNameVisible(((BooleanProperty) properties.get(key)).get());
-            } else if ("barBackgroundFilled".equals(key)) {
-                touchSlider.setBarBackbroundFilled(((BooleanProperty) properties.get(key)).get());
-            } else if ("showZero".equals(key)) {
-                touchSlider.setShowZero(((BooleanProperty) properties.get(key)).get());
-            } else if ("startFromZero".equals(key)) {
-                touchSlider.setStartFromZero(((BooleanProperty) properties.get(key)).get());
-            } else if ("snapToZero".equals(key)) {
-                touchSlider.setSnapToZero(((BooleanProperty) properties.get(key)).get());
-            } else if ("observer".equals(key)) {
-                touchSlider.addTouchSliderObserver(((ObjectProperty<TouchSliderObserver>) properties.get(key)).get());
+            switch (key) {
+                case "prefSize"            -> {
+                    Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
+                    touchSlider.setPrefSize(dim.getWidth(), dim.getHeight());
+                }
+                case "minSize"             -> {
+                    Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
+                    touchSlider.setMinSize(dim.getWidth(), dim.getHeight());
+                }
+                case "maxSize"             -> {
+                    Dimension2D dim = ((ObjectProperty<Dimension2D>) properties.get(key)).get();
+                    touchSlider.setMaxSize(dim.getWidth(), dim.getHeight());
+                }
+                case "prefWidth"           -> touchSlider.setPrefWidth(((DoubleProperty) properties.get(key)).get());
+                case "prefHeight"          -> touchSlider.setPrefHeight(((DoubleProperty) properties.get(key)).get());
+                case "minWidth"            -> touchSlider.setMinWidth(((DoubleProperty) properties.get(key)).get());
+                case "minHeight"           -> touchSlider.setMinHeight(((DoubleProperty) properties.get(key)).get());
+                case "maxWidth"            -> touchSlider.setMaxWidth(((DoubleProperty) properties.get(key)).get());
+                case "maxHeight"           -> touchSlider.setMaxHeight(((DoubleProperty) properties.get(key)).get());
+                case "scaleX"              -> touchSlider.setScaleX(((DoubleProperty) properties.get(key)).get());
+                case "scaleY"              -> touchSlider.setScaleY(((DoubleProperty) properties.get(key)).get());
+                case "layoutX"             -> touchSlider.setLayoutX(((DoubleProperty) properties.get(key)).get());
+                case "layoutY"             -> touchSlider.setLayoutY(((DoubleProperty) properties.get(key)).get());
+                case "translateX"          -> touchSlider.setTranslateX(((DoubleProperty) properties.get(key)).get());
+                case "translateY"          -> touchSlider.setTranslateY(((DoubleProperty) properties.get(key)).get());
+                case "padding"             -> touchSlider.setPadding(((ObjectProperty<Insets>) properties.get(key)).get());
+                case "name"                -> touchSlider.setName(((StringProperty) properties.get(key)).get());
+                case "orientation"         -> touchSlider.setOrientation(((ObjectProperty<Orientation>) properties.get(key)).get());
+                case "minValue"            -> touchSlider.setMinValue(((DoubleProperty) properties.get(key)).get());
+                case "range"               -> touchSlider.setRange(((DoubleProperty) properties.get(key)).get());
+                case "barBackgroundColor"  -> touchSlider.setBarBackgroundColor(((ObjectProperty<Color>) properties.get(key)).get());
+                case "barColor"            -> touchSlider.setBarColor(((ObjectProperty<Color>) properties.get(key)).get());
+                case "thumbColor"          -> touchSlider.setThumbColor(((ObjectProperty<Color>) properties.get(key)).get());
+                case "valueTextColor"      -> touchSlider.setValueTextColor(((ObjectProperty<Color>) properties.get(key)).get());
+                case "nameTextColor"       -> touchSlider.setNameTextColor(((ObjectProperty<Color>) properties.get(key)).get());
+                case "zeroColor"           -> touchSlider.setZeroColor(((ObjectProperty<Color>) properties.get(key)).get());
+                case "formatString"        -> touchSlider.setFormatString(((StringProperty) properties.get(key)).get());
+                case "valueVisible"        -> touchSlider.setValueVisible(((BooleanProperty) properties.get(key)).get());
+                case "nameVisible"         -> touchSlider.setNameVisible(((BooleanProperty) properties.get(key)).get());
+                case "barBackgroundFilled" -> touchSlider.setBarBackbroundFilled(((BooleanProperty) properties.get(key)).get());
+                case "showZero"            -> touchSlider.setShowZero(((BooleanProperty) properties.get(key)).get());
+                case "startFromZero"       -> touchSlider.setStartFromZero(((BooleanProperty) properties.get(key)).get());
+                case "snapToZero"          -> touchSlider.setSnapToZero(((BooleanProperty) properties.get(key)).get());
+                case "returnToZero"        -> touchSlider.setReturnToZero(((BooleanProperty) properties.get(key)).get());
+                case "observer"            -> touchSlider.addTouchSliderObserver(((ObjectProperty<TouchSliderObserver>) properties.get(key)).get());
             }
         }
         if (properties.containsKey("styleClass")) {
